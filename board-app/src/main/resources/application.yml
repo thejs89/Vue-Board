@@ -1,0 +1,50 @@
+server.port: 8080
+
+web:
+  url: http://localhost:8080
+
+logging:
+  level:
+    root: ERROR
+    com.board: DEBUG
+
+spring:
+  profiles:
+    active: local       #local, dev, real
+  servlet.multipart:
+    max-file-size: 1024MB
+    max-request-size: 1024MB
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: your-email@gmail.com
+    password: your-password
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+
+# mybatis 설정
+mybatis:
+  configuration:
+    map-underscore-to-camel-case: true
+    jdbc-type-for-null: VARCHAR
+  type-aliases-package:
+    com.board.domain
+  mapper-locations:
+   - com/board/mapper/board/**/*.xml
+   - com/board/mapper/common/**/*.xml
+
+# custom properties
+board:
+  datasource:
+    db-board:
+      jdbc-url: jdbc:h2:mem:testdb
+      driver-class-name: org.h2.Driver
+      username: sa
+      password: 
+  path:
+    upload: upload
+

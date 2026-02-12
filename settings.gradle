@@ -1,0 +1,5 @@
+rootProject.name = 'vue-board'
+include 'board-app'
+include 'board-web'
+include 'module-board'
+

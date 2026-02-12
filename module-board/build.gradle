@@ -1,0 +1,22 @@
+dependencies {
+  api 'org.springframework.boot:spring-boot-starter-web'
+  
+  /*mybatis*/
+  implementation "org.mybatis.spring.boot:mybatis-spring-boot-starter:${mybatisVersion}"
+
+  /*db*/
+  runtimeOnly 'com.h2database:h2'
+
+  api group: 'com.google.collections', name: 'google-collections', version: '1.0-rc2'
+  api group: 'com.google.guava', name: 'guava', version: '11.0.2'
+  
+  // Mail 모듈
+  implementation 'org.springframework.boot:spring-boot-starter-mail'
+  
+  // Apache Commons IO (파일 읽기용)
+  implementation 'commons-io:commons-io:2.11.0'
+}
+
+bootJar { enabled = false }
+jar { enabled = true }
+

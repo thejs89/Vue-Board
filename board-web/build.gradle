@@ -1,0 +1,21 @@
+apply plugin: 'com.moowork.node'
+
+dependencies {
+  implementation 'org.springframework.boot:spring-boot-starter-web'
+}
+
+//npm based frontend의 경우
+task npmI(type: NpmTask) {
+  workingDir = file("${project.projectDir}/../frontend/")
+  args = ['install']
+}
+task npmBuild(type: NpmTask) {
+  workingDir = file("${project.projectDir}/../frontend/")
+  def profile = project.findProperty('profile') ?: 'dev'
+  def nodeEnv = profile == 'prod' ? 'production' : 'development'
+  // .env.${profile}을 사용해 빌드(ex> npm run-script build -- --mode prod)
+  args = ['run-script', 'build', '--', '--mode', "${nodeEnv}"]
+}
+npmBuild.dependsOn npmI
+compileJava.dependsOn npmBuild
+
