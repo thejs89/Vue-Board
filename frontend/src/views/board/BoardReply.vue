@@ -2,7 +2,7 @@
   <div class="content-wrapper">
     <div class="card card-primary">
       <div class="card-header">
-        <h3 class="card-title">게시판 답글 등록</h3>
+        <h3 class="card-title">{{ isEditMode ? '게시판 답글 수정' : '게시판 답글 등록' }}</h3>
       </div>
       <div class="card-body">
         <div class="form-group">
@@ -70,7 +70,7 @@
           </div>
         </div>
         <div class="card-footer">
-          <button type="submit" class="btn btn-primary float-right">저장</button>
+          <button type="submit" class="btn btn-primary float-right">{{ isEditMode ? '수정' : '저장' }}</button>
           <button type="button" class="btn btn-primary" @click="moveList">목록</button>
         </div>
       </form>
@@ -86,7 +86,9 @@ export default {
   name: 'BoardReply',
   data() {
     return {
+      seq: null,
       parentSeq: null,
+      isEditMode: false,
       parentBoard: {},
       form: {
         title: '',
@@ -98,8 +100,15 @@ export default {
     }
   },
   mounted() {
+    this.seq = this.$route.params.seq
     this.parentSeq = this.$route.params.parentSeq
-    this.loadParentBoard()
+    this.isEditMode = !!this.seq
+    
+    if (this.isEditMode) {
+      this.loadBoard()
+    } else {
+      this.loadParentBoard()
+    }
   },
   methods: {
     async loadParentBoard() {
@@ -109,6 +118,44 @@ export default {
       } catch (error) {
         console.error('원글 로드 실패:', error)
         alert('원글을 불러오는데 실패했습니다.')
+        this.$router.push({ name: ROUTE.BOARD.LIST })
+      }
+    },
+    async loadBoard() {
+      try {
+        const response = await api.get(`/board/${this.seq}`)
+        const board = response.data.board
+        const files = response.data.fileList || []
+        
+        this.form.title = board.title
+        this.form.content = board.content
+        this.form.display = board.display
+        
+        // 원글 정보도 로드 (답글 수정 시에도 원글 정보 표시)
+        // 답글의 경우 groupId가 원글의 seq와 같음
+        if (board.groupId && !this.parentSeq) {
+          this.parentSeq = board.groupId.toString()
+        }
+        if (this.parentSeq) {
+          await this.loadParentBoard()
+        }
+        
+        // 기존 파일 목록을 UPD 모드로 추가
+        for (let i = 0; i < files.length; i++) {
+          const file = files[i]
+          this.fileList.push({
+            key: file.fileSeq.toString(),
+            mode: 'UPD',
+            name: file.fileName,
+            size: file.fileSize,
+            type: '',
+            fileSeq: file.fileSeq
+          })
+        }
+        this.updateFileLabel()
+      } catch (error) {
+        console.error('답글 로드 실패:', error)
+        alert('답글을 불러오는데 실패했습니다.')
         this.$router.push({ name: ROUTE.BOARD.LIST })
       }
     },
@@ -157,9 +204,16 @@ export default {
           // 선택되지 않은 파일은 그대로 유지
           newFileList.push(file)
         } else {
-          // REG 모드인 경우 완전히 제거
+          // 선택된 파일 처리
           if (file.mode === 'REG') {
+            // REG 모드인 경우 완전히 제거
             // (아무것도 추가하지 않음)
+          } else {
+            // UPD 모드인 경우 DEL 모드로 변경
+            newFileList.push({
+              ...file,
+              mode: 'DEL'
+            })
           }
         }
       }
@@ -200,19 +254,37 @@ export default {
         }
         formData.append('fileInfo', JSON.stringify(fileInfo))
 
+        // DEL 모드인 파일의 key 배열
+        const removeFiles = []
+        for (let i = 0; i < this.fileList.length; i++) {
+          if (this.fileList[i].mode === 'DEL') {
+            removeFiles.push(this.fileList[i].key)
+          }
+        }
+        if (removeFiles.length > 0) {
+          formData.append('removeFiles', JSON.stringify({ key: removeFiles }))
+        }
+
         // 기본 파일 정보
         formData.append('baseFileInfo', JSON.stringify({ id: 'BOARD' }))
 
         // 게시글 정보
-        formData.append('parentSeq', this.parentSeq)
+        if (!this.isEditMode) {
+          formData.append('parentSeq', this.parentSeq)
+        }
         formData.append('title', this.form.title)
         formData.append('content', this.form.content)
         formData.append('display', this.form.display)
 
-        const response = await api.post('/board/reply', formData)
+        let response
+        if (this.isEditMode) {
+          response = await api.put(`/board/${this.seq}`, formData)
+        } else {
+          response = await api.post('/board/reply', formData)
+        }
 
         if (response.data.success) {
-          alert(response.data.message || '답글이 등록되었습니다.')
+          alert(response.data.message || (this.isEditMode ? '답글이 수정되었습니다.' : '답글이 등록되었습니다.'))
           this.$router.push({ name: ROUTE.BOARD.LIST })
         }
       } catch (error) {

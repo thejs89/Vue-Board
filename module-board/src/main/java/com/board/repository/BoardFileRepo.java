@@ -15,7 +15,7 @@ public interface BoardFileRepo {
   Integer insertBoardFile(BoardFile boardFile);
   List<BoardFile> getBoardFileList(Integer boardSeq);
   BoardFile getBoardFileInfo(Map<String, Object> map);
-  Integer deleteBoardFiles(Map<String, Object> map);
+  Integer deleteBoardFile(Map<String, Object> map);
   
 }
 

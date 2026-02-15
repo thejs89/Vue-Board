@@ -37,12 +37,12 @@ const routes = [
     component: () => import(/* webpackChunkName: "board" */ '@/views/board/BoardView.vue')
   },
   {
-    path: '/board/write',
+    path: '/board/write/:seq?',
     name: ROUTE.BOARD.WRITE,
     component: () => import(/* webpackChunkName: "board" */ '@/views/board/BoardWrite.vue')
   },
   {
-    path: '/board/reply/:parentSeq',
+    path: '/board/reply/:parentSeq/:seq?',
     name: ROUTE.BOARD.REPLY,
     component: () => import(/* webpackChunkName: "board" */ '@/views/board/BoardReply.vue')
   },

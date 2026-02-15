@@ -67,15 +67,11 @@
        AND delete_yn = false
   </select>
 
-  <update id="deleteBoardFiles">
+  <update id="deleteBoardFile">
     UPDATE BOARD_FILE
        SET delete_yn = true
-          ,upd_date = SYSDATE
-          ,upd_id = #{userId}
-     WHERE file_seq IN
-    <foreach collection="fileSeqList" item="fileSeq" open="(" separator="," close=")">
-      #{fileSeq}
-    </foreach>
+          ,upd_date = #{updDate}
+     WHERE file_seq = #{fileSeq}
   </update>
 
 </mapper>

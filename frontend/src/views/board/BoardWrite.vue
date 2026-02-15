@@ -2,7 +2,7 @@
   <div class="content-wrapper">
     <div class="card card-primary">
       <div class="card-header">
-        <h3 class="card-title">게시판 등록</h3>
+        <h3 class="card-title">{{ isEditMode ? '게시판 수정' : '게시판 등록' }}</h3>
       </div>
       <form id="saveForm" @submit.prevent="save">
         <div class="card-body">
@@ -55,7 +55,7 @@
           </div>
         </div>
         <div class="card-footer">
-          <button type="submit" class="btn btn-primary float-right">저장</button>
+          <button type="submit" class="btn btn-primary float-right">{{ isEditMode ? '수정' : '저장' }}</button>
           <button type="button" class="btn btn-primary" @click="moveList">목록</button>
         </div>
       </form>
@@ -71,6 +71,8 @@ export default {
   name: 'BoardWrite',
   data() {
     return {
+      seq: null,
+      isEditMode: false,
       form: {
         title: '',
         content: '',
@@ -80,7 +82,43 @@ export default {
       fileLabel: '파일을 선택하세요'
     }
   },
+  mounted() {
+    this.seq = this.$route.params.seq
+    this.isEditMode = !!this.seq
+    if (this.isEditMode) {
+      this.loadBoard()
+    }
+  },
   methods: {
+    async loadBoard() {
+      try {
+        const response = await api.get(`/board/${this.seq}`)
+        const board = response.data.board
+        const files = response.data.fileList || []
+        
+        this.form.title = board.title
+        this.form.content = board.content
+        this.form.display = board.display
+        
+        // 기존 파일 목록을 UPD 모드로 추가
+        for (let i = 0; i < files.length; i++) {
+          const file = files[i]
+          this.fileList.push({
+            key: file.fileSeq.toString(),
+            mode: 'UPD',
+            name: file.fileName,
+            size: file.fileSize,
+            type: '',
+            fileSeq: file.fileSeq
+          })
+        }
+        this.updateFileLabel()
+      } catch (error) {
+        console.error('게시글 로드 실패:', error)
+        alert('게시글을 불러오는데 실패했습니다.')
+        this.$router.push({ name: ROUTE.BOARD.LIST })
+      }
+    },
     selectFile() {
       this.$refs.fileInput.click()
     },
@@ -194,10 +232,15 @@ export default {
         formData.append('display', this.form.display)
 
         // FormData를 사용하면 axios가 자동으로 multipart/form-data로 설정함
-        const response = await api.post('/board', formData)
+        let response
+        if (this.isEditMode) {
+          response = await api.put(`/board/${this.seq}`, formData)
+        } else {
+          response = await api.post('/board', formData)
+        }
 
         if (response.data.success) {
-          alert(response.data.message || '게시글이 등록되었습니다.')
+          alert(response.data.message || (this.isEditMode ? '게시글이 수정되었습니다.' : '게시글이 등록되었습니다.'))
           this.$router.push({ name: ROUTE.BOARD.LIST })
         }
       } catch (error) {

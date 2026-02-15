@@ -47,6 +47,7 @@
       </div>
       <div class="card-footer">
         <button type="button" class="btn btn-primary float-right" style="margin-left: 10px;" @click="deleteBoard">삭제</button>
+        <button type="button" class="btn btn-primary float-right" style="margin-left: 10px;" @click="moveEdit">수정</button>
         <button type="button" class="btn btn-primary float-right" @click="moveReply">답글</button>
         <button type="button" class="btn btn-primary" @click="moveList">목록</button>
       </div>
@@ -113,6 +114,16 @@ export default {
       } catch (error) {
         console.error('게시글 삭제 실패:', error)
         alert('게시글 삭제에 실패했습니다.')
+      }
+    },
+    moveEdit() {
+      // 답글인지 확인 (depth > 0이면 답글)
+      if (this.board.depth > 0) {
+        // 답글 수정
+        this.$router.push({ name: ROUTE.BOARD.REPLY, params: { seq: this.board.seq, parentSeq: this.board.groupId } })
+      } else {
+        // 일반 게시글 수정
+        this.$router.push({ name: ROUTE.BOARD.WRITE, params: { seq: this.board.seq } })
       }
     },
     moveReply() {

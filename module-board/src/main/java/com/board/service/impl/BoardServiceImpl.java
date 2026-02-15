@@ -100,6 +100,16 @@ public class BoardServiceImpl implements BoardService {
 
   @Transactional(readOnly = false)
   @Override
+  public void updateBoard(List<MultipartFile> fileList, Map<String, Object> map) throws Exception {
+    Board board = convertToBoard(map);
+    setUpdateBoardValues(board);
+    boardRepo.updateBoard(board);
+
+    uploadFiles(board.getSeq(), fileList, map);
+  }
+
+  @Transactional(readOnly = false)
+  @Override
   public void deleteBoard(Integer seq) throws Exception {
     boardRepo.deleteBoard(seq);
   }
@@ -163,6 +173,15 @@ public class BoardServiceImpl implements BoardService {
   }
 
   /**
+   * 게시글 수정값 설정
+   */
+  private void setUpdateBoardValues(Board board) {
+    Date now = new Date();
+    board.setUpdDate(now);
+    board.setUpdId(DEFAULT_USER_ID);
+  }
+
+  /**
    * 파일 업로드 처리
    */
   private void uploadFiles(Integer boardSeq, List<MultipartFile> fileList, Map<String, Object> map) throws Exception {
@@ -217,23 +236,19 @@ public class BoardServiceImpl implements BoardService {
         return;
       }
       
-      // key를 fileSeq로 변환 (key가 숫자 문자열인 경우)
-      List<Integer> fileSeqList = new ArrayList<>();
+      // key를 fileSeq로 변환하여 하나씩 삭제
+      Date now = new Date();
       for (String key : keyList) {
         try {
           Integer fileSeq = Integer.parseInt(key);
-          fileSeqList.add(fileSeq);
+          Map<String, Object> deleteParams = new HashMap<>();
+          deleteParams.put("fileSeq", fileSeq);
+          deleteParams.put("updDate", now);
+          boardFileRepo.deleteBoardFile(deleteParams);
         } catch (NumberFormatException e) {
           // key가 숫자가 아닌 경우 무시 (신규 파일의 경우)
           log.warn("삭제할 파일 key가 숫자가 아닙니다: {}", key);
         }
-      }
-      
-      if (!fileSeqList.isEmpty()) {
-        Map<String, Object> deleteParams = new HashMap<>();
-        deleteParams.put("fileSeqList", fileSeqList);
-        deleteParams.put("userId", DEFAULT_USER_ID);
-        boardFileRepo.deleteBoardFiles(deleteParams);
       }
     } catch (Exception e) {
       log.error("파일 삭제 처리 실패: {}", e.getMessage(), e);

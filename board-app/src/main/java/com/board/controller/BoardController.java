@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RequestPart;
@@ -88,6 +89,24 @@ public class BoardController {
     Map<String, Object> result = new HashMap<>();
     result.put("success", true);
     result.put("message", "답글이 등록되었습니다.");
+    return result;
+  }
+
+  @PutMapping("/{seq}")
+  public Map<String, Object> updateBoard(
+      @PathVariable Integer seq,
+      @RequestPart(value = "file", required = false) List<MultipartFile> fileList,
+      @RequestParam(required = false) Map<String, Object> map) throws Exception {
+    
+    if (map == null) {
+      map = new HashMap<>();
+    }
+    map.put("seq", seq);
+    boardService.updateBoard(fileList, map);
+    
+    Map<String, Object> result = new HashMap<>();
+    result.put("success", true);
+    result.put("message", "게시글이 수정되었습니다.");
     return result;
   }
 

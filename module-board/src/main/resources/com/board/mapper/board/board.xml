@@ -104,14 +104,25 @@
               ,#{updId})
   </insert>
 
-  <update id= "updateGroupOrd">
+  <update id="updateGroupOrd">
     UPDATE BOARD 
        SET group_order = group_order+1  
      WHERE group_id= #{groupId}
        AND group_order <![CDATA[>]]> #{groupOrder}
   </update>
 
-  <update id= "deleteBoard">
+  <update id="updateBoard">
+    UPDATE BOARD
+       SET title = #{title}
+          ,content = #{content}
+          ,display = #{display}
+          ,upd_date = #{updDate}
+          ,upd_id = #{updId}
+     WHERE seq = #{seq}
+       AND delete_yn = false
+  </update>
+
+  <update id="deleteBoard">
     UPDATE BOARD
        SET delete_yn = true
      WHERE seq = ${seq} 
