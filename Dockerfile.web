@@ -1,7 +1,0 @@
-FROM eclipse-temurin:11-jre-alpine
-WORKDIR /app
-
-COPY board-web/build/libs/board-web.jar board-web.jar
-
-EXPOSE 8090
-ENTRYPOINT ["java", "-jar", "board-web.jar"]

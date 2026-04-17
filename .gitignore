@@ -39,3 +39,7 @@ out/
 ### Cursor Rules ###
 .cursor/rules/*.mdc
 
+### Claude Code ###
+CLAUDE.md
+.claude/
+
