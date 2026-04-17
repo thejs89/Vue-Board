@@ -1,5 +1,7 @@
 logging:
-  path: /data/board/log/app
+  file:
+    path: /data/board/log/app
+    max-size: 100mb
   level: 
     com.board: DEBUG
     

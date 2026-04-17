@@ -1,6 +1,6 @@
 logging:
-  path: /data/board/log/web
   file:
+    path: /data/board/log/web
     max-size: 100mb
   level: 
     root: ERROR
