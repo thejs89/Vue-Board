@@ -1,0 +1,38 @@
+version: '3.8'
+
+services:
+
+  # -----------------------------------------------
+  # board-api: REST API 서버 (Spring Boot, port 8080)
+  # -----------------------------------------------
+  board-api:
+    build:
+      context: .
+      dockerfile: Dockerfile.app
+    container_name: board-api
+    environment:
+      - SPRING_PROFILES_ACTIVE=prod
+      # 업로드 경로 (prod 프로파일 기본값 /data/board/upload)
+    volumes:
+      - /data/board/upload:/data/board/upload
+    expose:
+      - "8080"
+    ports:
+      - "8080:8080"
+    restart: unless-stopped
+
+  # -----------------------------------------------
+  # board-web: Vue SPA 정적 파일 서버 (Spring Boot)
+  # -----------------------------------------------
+  board-web:
+    build:
+      context: .
+      dockerfile: Dockerfile.web
+    container_name: board-web
+    environment:
+      - SPRING_PROFILES_ACTIVE=local
+    expose:
+      - "8090"
+    ports:
+      - "8090:8090"
+    restart: unless-stopped

@@ -3,7 +3,6 @@ buildscript {
     springBootVersion = '2.7.13'
     dependencyManagementVersion = '1.1.0'
     mybatisVersion = '2.2.0'
-    nodePluginVersion = '1.3.1'
   }
   repositories {
     mavenCentral()
@@ -12,8 +11,11 @@ buildscript {
   dependencies {
     classpath "org.springframework.boot:spring-boot-gradle-plugin:${springBootVersion}"
     classpath "io.spring.gradle:dependency-management-plugin:${dependencyManagementVersion}"
-    classpath "com.moowork.gradle:gradle-node-plugin:${nodePluginVersion}"
   }
+}
+
+plugins {
+    id "com.github.node-gradle.node" version "7.0.2" apply false
 }
 
 allprojects {
@@ -64,6 +66,15 @@ project(':board-app') {
 }
 
 project(':board-web') {
+
+  apply plugin: 'com.github.node-gradle.node'
+
+  node {
+      version = "18.17.0"
+      npmVersion = "9.6.7"
+      download = true
+  }
+
   sourceSets {
     main {
       resources {

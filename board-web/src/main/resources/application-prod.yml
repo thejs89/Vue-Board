@@ -1,0 +1,8 @@
+logging:
+  path: /data/board/log/web
+  file:
+    max-size: 100mb
+  level: 
+    root: ERROR
+    kr.co.m114: DEBUG
+    org.springframework.security: FATAL

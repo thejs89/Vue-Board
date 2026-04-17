@@ -1,0 +1,27 @@
+logging:
+  path: /data/board/log/app
+  level: 
+    com.board: DEBUG
+    
+spring:
+  h2:
+    console: 
+      enabled: true
+  sql:
+    init:
+      mode: always
+      schema-locations: classpath*:h2/schema.sql
+      data-locations: classpath*:h2/data.sql
+      encoding: utf-8
+
+board:
+  datasource:
+    db-board:
+      driver-class-name: org.h2.Driver
+      jdbc-url: jdbc:h2:mem:testdb
+      username: sa
+      password:
+
+  path:
+    upload: /data/board/upload
+
